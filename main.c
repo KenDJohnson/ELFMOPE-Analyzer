@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include "elf.h"
+#include "pe.h"
 
 #define PE  		1
 #define ELF  	 	2
@@ -6,8 +8,6 @@
 
 
 int get_image_type(FILE *fp);
-void analyze_pe(FILE *fp);
-void analyze_elf(FILE *fp);
 
 int main(int argc, char **argv)
 {
@@ -40,15 +40,7 @@ int main(int argc, char **argv)
 }
 
 
-void analyze_pe(FILE *fp)
-{
-	printf("In PE\n");
-}
 
-void analyze_elf(FILE *fp)
-{
-	printf("In ELF\n");
-}
 
 
 int get_image_type(FILE *fp)
