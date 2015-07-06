@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-I.
+CFLAGS=-I. -std=gnu99
 
 elfmope: elf.c pe.c main.c
-	$(CC) -o elfmope elf.c pe.c main.c -I.
+	$(CC) -o elfmope elf.c pe.c main.c $(CFLAGS)
