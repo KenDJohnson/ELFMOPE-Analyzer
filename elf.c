@@ -112,4 +112,26 @@ void analyze_64(FILE *fp)
 			printf("Stanalone (embedded) application.\n");
 			break;
 	}
+
+
+	printf("File type: ");
+	switch(header.e_type)
+	{
+		case ET_NONE:
+			printf("No file type\n");
+			break;
+		case ET_REL:
+			printf("Relocatable file\n");
+			break;
+		case ET_EXEC:
+			printf("Executable file\n");
+			break;
+		case ET_DYN:
+			printf("Shared object file\n");
+			break;
+		case ET_CORE:
+			printf("Core file\n");
+			break;
+		// Include ofhters?
+	}
 }
