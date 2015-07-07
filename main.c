@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include "elf.h"
+#include <elf.h>
 #include "pe.h"
+#include "elf_analyze.h"
 
 #define PE  		1
 #define ELF  	 	2
@@ -21,7 +22,7 @@ int main(int argc, char **argv)
 		printf( "Usage: %s: <executable>\n", argv[0] );
 		return 1;
 	}
-	fname = argv[1];
+	fname = argv[1]; // Check if exists
 	fp = fopen( fname, "rb" );
 	
 	ftype = get_image_type(fp);
@@ -55,13 +56,6 @@ int get_image_type(FILE *fp)
 		return -1;
 	}
 	
-	/* Debug output for the header */
-	fprintf(stderr, "0x");
-	for( int i = 0; i < 4; i++ )
-	{
-		fprintf(stderr, "%2x", sig[i]);
-	}
-	fprintf(stderr, "\n");
 
 	 if( sig[0] == 0x4D &&
 		 sig[1] == 0x5A &&
@@ -70,12 +64,19 @@ int get_image_type(FILE *fp)
 	{
 		return PE;
 	}
-	else if( sig[0] == 0x7F &&
-			 sig[1] == 0x45 &&
-			 sig[2] == 0x4C &&
-			 sig[3] == 0x46   )
+	else if( sig[0] == ELFMAG0 &&
+			 sig[1] == ELFMAG1 &&
+			 sig[2] == ELFMAG2 &&
+			 sig[3] == ELFMAG3   )
 	{
 		return ELF;
+	}
+	else if( sig[0] == 0xEF &&
+			 sig[1] == 0xBE &&
+			 sig[2] == 0xAD &&
+			 sig[3] == 0xDE   )
+	{
+		return MACHO;
 	}
 
 	return 0;
