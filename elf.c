@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <elf.h>
+#include <inttypes.h>
 #include <elf_analyze.h>
 
 void analyze_32(FILE *fp);
@@ -40,6 +41,11 @@ void analyze_64(FILE *fp)
 	
 	// Read the entire header (0x40 bytes) into the Elf64_Ehdr struct
 	fread(&header, sizeof(header), 1, fp);
+
+
+	uint64_t program_header_o 	= header.e_phoff,
+			 section_header_o 	= header.e_shoff,
+			 entry_point		= header.e_entry;
 
 	printf("File is a 64 bit executable");
 	
@@ -379,9 +385,9 @@ void analyze_64(FILE *fp)
 			printf("not found\n");
 	}
 
-	printf("Entry point: 0x%x\n", header.e_entry);
+	printf("Entry point: 0x%"PRIxFAST64"\n", entry_point);
 
-	printf("Program header: 0x%x\n", header.e_phoff);
+	printf("Program header: 0x%"PRIxFAST64"\n", program_header_o);
 
-	printf("Section Header: 0x%x\n", header.e_shoff);
+	printf("Section Header: 0x%"PRIxFAST64"\n", section_header_o);
 }
