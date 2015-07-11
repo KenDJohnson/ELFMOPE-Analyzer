@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <elf.h>
+#include <unistd.h>
 #include "pe.h"
 #include "elf_analyze.h"
 
@@ -23,6 +24,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	fname = argv[1]; // Check if exists
+	if( access(fname, R_OK) == -1)
+	{
+		printf("Unable to read file: %s\n", fname);
+		return -1;
+	}
 	fp = fopen( fname, "rb" );
 	
 	ftype = get_image_type(fp);
