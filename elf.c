@@ -39,7 +39,7 @@ void analyze_64(FILE *fp)
 
 	
 	// Read the entire header (0x40 bytes) into the Elf64_Ehdr struct
-	fread(&header, HEADER_SIZE_64, 1, fp);
+	fread(&header, sizeof(header), 1, fp);
 
 	printf("File is a 64 bit executable");
 	
@@ -133,5 +133,255 @@ void analyze_64(FILE *fp)
 			printf("Core file\n");
 			break;
 		// Include ofhters?
+
+		default:
+			printf("not found\n");
 	}
+
+	printf("Machine Archetecture: ");
+	switch(header.e_type)
+	{
+		case EM_NONE:
+			printf("No machine\n");
+			break;
+		case EM_M32:
+			printf("AT&T WE 32100\n");
+			break;
+		case EM_SPARC:
+			printf("Sun SPARC\n");
+			break;
+		case EM_386:
+			printf("Intel 80386\n");
+			break;
+		case EM_68K:
+			printf("Motorola m68k family\n");
+			break;
+		case EM_88K:
+			printf("Motorola m88k family\n");
+			break;
+		case EM_860:
+			printf("Intel 80860\n");
+			break;
+		case EM_MIPS:
+			printf("MIPS R3000 big-endian\n");
+			break;
+		case EM_S370:
+			printf("IBM System/370\n");
+			break;
+		case EM_MIPS_RS3_LE:
+			printf("MIPS R3000 little-endian\n");
+			break;
+		case EM_PARISC:
+			printf("HPPA\n");
+			break;
+		case EM_VPP500:
+			printf("Fujitsu VPP500\n");
+			break;
+		case EM_SPARC32PLUS:
+			printf("Sun's \"v8plus\"\n");
+			break;
+		case EM_960:
+			printf("Intel 80960\n");
+			break;
+		case EM_PPC:
+			printf("PowerPC\n");
+			break;
+		case EM_PPC64:
+			printf("PowerPC 64-bit\n");
+			break;
+		case EM_S390:
+			printf("IBM S390\n");
+			break;
+		case EM_V800:
+			printf("NEC V800 series\n");
+			break;
+		case EM_FR20:
+			printf("Fujitsu FR20\n");
+			break;
+		case EM_RH32:
+			printf("TRW RH-32\n");
+			break;
+		case EM_RCE:
+			printf("Motorola RCE\n");
+			break;
+		case EM_ARM:
+			printf("ARM\n");
+			break;
+		case EM_FAKE_ALPHA:
+			printf("Digital Alpha\n");
+			break;
+		case EM_SH:
+			printf("Hitachi SH\n");
+			break;
+		case EM_SPARCV9:
+			printf("SPARC v9 64-bit\n");
+			break;
+		case EM_TRICORE:
+			printf("Siemens Tricore\n");
+			break;
+		case EM_ARC:
+			printf("Argonaut RISC Core\n");
+			break;
+		case EM_H8_300:
+			printf("Hitachi H8/300\n");
+			break;
+		case EM_H8_300H:
+			printf("Hitachi H8/300H\n");
+			break;
+		case EM_H8S:
+			printf("Hitachi H8S\n");
+			break;
+		case EM_H8_500:
+			printf("Hitachi H8/500\n");
+			break;
+		case EM_IA_64:
+			printf("Intel Merced\n");
+			break;
+		case EM_MIPS_X:
+			printf("Stanford MIPS-X\n");
+			break;
+		case EM_COLDFIRE:
+			printf("Motorola Coldfire\n");
+			break;
+		case EM_68HC12:
+			printf("Motorola M68HC12\n");
+			break;
+		case EM_MMA:
+			printf("Fujitsu MMA Multimedia Accelerator*/\n");
+			break;
+		case EM_PCP:
+			printf("Siemens PCP\n");
+			break;
+		case EM_NCPU:
+			printf("Sony nCPU embeeded RISC\n");
+			break;
+		case EM_NDR1:
+			printf("Denso NDR1 microprocessor\n");
+			break;
+		case EM_STARCORE:
+			printf("Motorola Start*Core processor\n");
+			break;
+		case EM_ME16:
+			printf("Toyota ME16 processor\n");
+			break;
+		case EM_ST100:
+			printf("STMicroelectronic ST100 processor\n");
+			break;
+		case EM_TINYJ:
+			printf("Advanced Logic Corp. Tinyj emb.fam*/\n");
+			break;
+		case EM_X86_64:
+			printf("AMD x86-64 architecture\n");
+			break;
+		case EM_PDSP:
+			printf("Sony DSP Processor\n");
+			break;
+		case EM_FX66:
+			printf("Siemens FX66 microcontroller\n");
+			break;
+		case EM_ST9PLUS:
+			printf("STMicroelectronics ST9+ 8/16 mc\n");
+			break;
+		case EM_ST7:
+			printf("STmicroelectronics ST7 8 bit mc\n");
+			break;
+		case EM_68HC16:
+			printf("Motorola MC68HC16 microcontroller\n");
+			break;
+		case EM_68HC11:
+			printf("Motorola MC68HC11 microcontroller\n");
+			break;
+		case EM_68HC08:
+			printf("Motorola MC68HC08 microcontroller\n");
+			break;
+		case EM_68HC05:
+			printf("Motorola MC68HC05 microcontroller\n");
+			break;
+		case EM_SVX:
+			printf("Silicon Graphics SVx\n");
+			break;
+		case EM_ST19:
+			printf("STMicroelectronics ST19 8 bit mc\n");
+			break;
+		case EM_VAX:
+			printf("Digital VAX\n");
+			break;
+		case EM_CRIS:
+			printf("Axis Communications 32-bit embedded processor\n");
+			break;
+		case EM_JAVELIN:
+			printf("Infineon Technologies 32-bit embedded processor\n");
+			break;
+		case EM_FIREPATH:
+			printf("Element 14 64-bit DSP Processor\n");
+			break;
+		case EM_ZSP:
+			printf("LSI Logic 16-bit DSP Processor\n");
+			break;
+		case EM_MMIX:
+			printf("Donald Knuth's educational 64-bit processor\n");
+			break;
+		case EM_HUANY:
+			printf("Harvard University machine-independent object files\n");
+			break;
+		case EM_PRISM:
+			printf("SiTera Prism\n");
+			break;
+		case EM_AVR:
+			printf("Atmel AVR 8-bit microcontroller\n");
+			break;
+		case EM_FR30:
+			printf("Fujitsu FR30\n");
+			break;
+		case EM_D10V:
+			printf("Mitsubishi D10V\n");
+			break;
+		case EM_D30V:
+			printf("Mitsubishi D30V\n");
+			break;
+		case EM_V850:
+			printf("NEC v850\n");
+			break;
+		case EM_M32R:
+			printf("Mitsubishi M32R\n");
+			break;
+		case EM_MN10300:
+			printf("Matsushita MN10300\n");
+			break;
+		case EM_MN10200:
+			printf("Matsushita MN10200\n");
+			break;
+		case EM_PJ:
+			printf("picoJava\n");
+			break;
+		case EM_OPENRISC:
+			printf("OpenRISC 32-bit embedded processor\n");
+			break;
+		case EM_ARC_A5:
+			printf("ARC Cores Tangent-A5\n");
+			break;
+		case EM_XTENSA:
+			printf("Tensilica Xtensa Architecture\n");
+			break;
+		case EM_AARCH64:
+			printf("ARM AARCH64\n");
+			break;
+		case EM_TILEPRO:
+			printf("Tilera TILEPro\n");
+			break;
+		case EM_MICROBLAZE:
+			printf("Xilinx MicroBlaze\n");
+			break;
+		case EM_TILEGX:
+			printf("Tilera TILE-Gx\n");
+			break;
+		default:
+			printf("not found\n");
+	}
+
+	printf("Entry point: 0x%x\n", header.e_entry);
+
+	printf("Program header: 0x%x\n", header.e_phoff);
+
+	printf("Section Header: 0x%x\n", header.e_shoff);
 }
