@@ -42,11 +42,6 @@ void analyze_64(FILE *fp)
 	// Read the entire header (0x40 bytes) into the Elf64_Ehdr struct
 	fread(&header, sizeof(header), 1, fp);
 
-
-	uint64_t program_header_o 	= header.e_phoff,
-			 section_header_o 	= header.e_shoff,
-			 entry_point		= header.e_entry;
-
 	printf("File is a 64 bit executable");
 	
 	switch(header.e_ident[EI_DATA])
@@ -385,9 +380,25 @@ void analyze_64(FILE *fp)
 			printf("not found\n");
 	}
 
-	printf("Entry point: 0x%"PRIxFAST64"\n", entry_point);
+	printf("Entry point: 0x%"PRIxFAST64"\n", (uint64_t) header.e_entry);
 
-	printf("Program header: 0x%"PRIxFAST64"\n", program_header_o);
+	printf("Program header: 0x%"PRIxFAST64"\n", (uint64_t) header.e_phoff);
 
-	printf("Section Header: 0x%"PRIxFAST64"\n", section_header_o);
+	printf("Program header size: 0x%"PRIxLEAST16"\n", (uint16_t) header.e_phentsize);
+
+	printf("Entries in program header: 0x%"PRIxLEAST16"\n", (uint16_t) header.e_phnum);
+
+	printf("Section Header: 0x%"PRIxFAST64"\n", (uint64_t) header.e_shoff);
+
+	printf("Section header size: 0x%"PRIxFAST16"\n", (uint16_t) header.e_shentsize);
+
+	printf("Entires is section header: 0x%"PRIxFAST16"\n", (uint16_t) header.e_shnum);
+
+	printf("Section name index: 0x%"PRIxFAST16"\n", (uint16_t) header.e_shstrndx);
+
+	printf("Flags: 0x%"PRIxLEAST32"\n", (uint32_t) header.e_flags);
+
+	printf("ELF header size: 0x%"PRIxLEAST16"\n", (uint16_t) header.e_ehsize);
+
+
 }
