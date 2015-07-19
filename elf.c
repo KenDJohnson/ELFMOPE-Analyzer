@@ -389,13 +389,13 @@ void analyze_64(FILE *fp)
 
 	printf("Entries in program header: 0x%"PRIxLEAST16"\n", (uint16_t) header.e_phnum);
 
-	printf("Section Header: 0x%"PRIxFAST64"\n", (uint64_t) header.e_shoff);
+	printf("Section Header: 0x%"PRIxLEAST64"\n", (uint64_t) header.e_shoff);
 
-	printf("Section header size: 0x%"PRIxFAST16"\n", (uint16_t) header.e_shentsize);
+	printf("Section header size: 0x%"PRIxLEAST16"\n", (uint16_t) header.e_shentsize);
 
-	printf("Entires is section header: 0x%"PRIxFAST16"\n", (uint16_t) header.e_shnum);
+	printf("Entires is section header: 0x%"PRIxLEAST16"\n", (uint16_t) header.e_shnum);
 
-	printf("Section name index: 0x%"PRIxFAST16"\n", (uint16_t) header.e_shstrndx);
+	printf("Section name index: 0x%"PRIxLEAST16"\n", (uint16_t) header.e_shstrndx);
 
 	printf("Flags: 0x%"PRIxLEAST32"\n", (uint32_t) header.e_flags);
 
@@ -406,168 +406,177 @@ void analyze_64(FILE *fp)
 	
 	printf("================================================================================\n");
 
-	Elf64_Shdr section_header;
-	fseek(fp, header.e_shoff, 0);
 
-	if(!fread(&section_header, sizeof(section_header), 1, fp))
+	
+	int num_sections = header.e_shnum, section_index;
+	Elf64_Shdr sh_list[num_sections];
+
+	printf("0x%"PRIxPTR"\n", (uintptr_t)sh_list);
+
+	fseek(fp, header.e_shoff, 0);
+	
+
+	if(!fread(&sh_list, sizeof(Elf64_Shdr), num_sections, fp))
 	{
 		exit(-1);
 	}
 
-	if(section_header.sh_name == 0x0)
-	{
-		fread(&section_header, sizeof(section_header), 1, fp);
-	}
 
-	printf("0x%"PRIxLEAST64"\n", (uint64_t) section_header.sh_name);
+	for(section_index = 0; section_index < num_sections; section_index++)
+	{
 
-	printf("Section header type: ");
+		printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 	
-	switch(section_header.sh_type)
-	{
-		case SHT_NULL:
-			printf("Section header table entry unused\n");
-			break;
-		case SHT_PROGBITS:
-			printf("Program data\n");
-			break;
-		case SHT_SYMTAB:
-			printf("Symbol table\n");
-			break;
-		case SHT_STRTAB:
-			printf("String table\n");
-			break;
-		case SHT_RELA:
-			printf("Relocation entries with addend\n");
-			break;
-		case SHT_HASH:
-			printf("Symbol hash table\n");
-			break;
-		case SHT_DYNAMIC:
-			printf("Dynamic linking information\n");
-			break;
-		case SHT_NOTE:
-			printf("Note\n");
-			break;
-		case SHT_NOBITS:
-			printf("Program space with no data (bss\n");
-			break;
-		case SHT_REL:
-			printf("Relocation entries, no addend\n");
-			break;
-		case SHT_SHLIB:
-			printf("Reserved\n");
-			break;
-		case SHT_DYNSYM:
-			printf("Dynamic linker symbol table\n");
-			break;
-		case SHT_INIT_ARRAY:
-			printf("Array of constructor\n");
-			break;
-		case SHT_FINI_ARRAY:
-			printf("Array of destructor\n");
-			break;
-		case SHT_PREINIT_ARRAY:
-			printf("Array of pre-constructor\n");
-			break;
-		case SHT_GROUP:
-			printf("Section group\n");
-			break;
-		case SHT_SYMTAB_SHNDX:
-			printf("Extended section indeces\n");
-			break;
-		case SHT_NUM:
-			printf("Number of defined types\n");
-			break;
-		case SHT_LOOS:
-			printf("Start OS-specific\n");
-			break;
-		case SHT_GNU_ATTRIBUTES:
-			printf("Object attributes\n");
-			break;
-		case SHT_GNU_HASH:
-			printf("GNU-style hash table\n");
-			break;
-		case SHT_GNU_LIBLIST:
-			printf("Prelink library list\n");
-			break;
-		case SHT_CHECKSUM:
-			printf("Checksum for DSO content\n");
-			break;
-		case SHT_LOSUNW:
-			printf("Sun-specific low bound\n");
-			break;
-		case SHT_GNU_verdef:
-			printf("Version definition section\n");
-			break;
-		case SHT_GNU_verneed:
-			printf("Version needs section\n");
-			break;
-		case SHT_GNU_versym:
-			printf("Version symbol table\n");
-			break;
-		case SHT_LOPROC:
-			printf("Start of processor-specific\n");
-			break;
-		case SHT_HIPROC:
-			printf("End of processor-specific\n");
-			break;
-		case SHT_LOUSER:
-			printf("Start of application-specific\n");
-			break;
-		case SHT_HIUSER:
-			printf("End of application-specific\n");
-			break;
-	}
+		printf("0x%"PRIxLEAST64"\n", (uint64_t) sh_list[section_index].sh_name);
 	
-	printf("Table attributes:\n\t");
-	if((section_header.sh_flags & SHF_WRITE) == SHF_WRITE)
-	{
-		printf("\tWritable\n");
-	}
-	if((section_header.sh_flags & SHF_ALLOC) == SHF_ALLOC)
-	{
-		printf("\tLoads to memory during execution\n");
-	}
-	if((section_header.sh_flags & SHF_EXECINSTR) == SHF_EXECINSTR)
-	{
-		printf("\tExecutable\n");
-	}
-	if((section_header.sh_flags & SHF_MERGE) == SHF_MERGE)
-	{
-		printf("\tMay be merged\n");
-	}
-	if((section_header.sh_flags & SHF_STRINGS) == SHF_STRINGS)
-	{
-		printf("\tContains nul-terminated strings\n");
-	}
-	if((section_header.sh_flags & SHF_INFO_LINK) == SHF_INFO_LINK)
-	{
-		printf("\t'sh_info' contains SHT index\n");
-	}
-	if((section_header.sh_flags & SHF_LINK_ORDER) == SHF_LINK_ORDER)
-	{
-		printf("\tPreserve order after combining\n");
-	}
-	if((section_header.sh_flags & SHF_OS_NONCONFORMING) == SHF_OS_NONCONFORMING)
-	{
-		printf("\tNon-standard OS specific handling required\n");
-	}
-	if((section_header.sh_flags & SHF_GROUP) == SHF_GROUP)
-	{
-		printf("\tSection is member of a group\n");
-	}
-	if((section_header.sh_flags & SHF_TLS) == SHF_TLS)
-	{
-		printf("\tSection holds thread-local data\n");
-	}
-	if((section_header.sh_flags & SHF_ORDERED) == SHF_ORDERED)
-	{
-		printf("\tSpecial ordering requirement (Solaris)\n");
-	}
-	if((section_header.sh_flags & SHF_EXCLUDE) == SHF_EXCLUDE)
-	{
-		printf("\tSection is excluded unless referenced or allocated (Solaris)\n");
+		printf("Section header type: ");
+		
+		switch(sh_list[section_index].sh_type)
+		{
+			case SHT_NULL:
+				printf("Section header table entry unused\n");
+				break;
+			case SHT_PROGBITS:
+				printf("Program data\n");
+				break;
+			case SHT_SYMTAB:
+				printf("Symbol table\n");
+				break;
+			case SHT_STRTAB:
+				printf("String table\n");
+				break;
+			case SHT_RELA:
+				printf("Relocation entries with addend\n");
+				break;
+			case SHT_HASH:
+				printf("Symbol hash table\n");
+				break;
+			case SHT_DYNAMIC:
+				printf("Dynamic linking information\n");
+				break;
+			case SHT_NOTE:
+				printf("Note\n");
+				break;
+			case SHT_NOBITS:
+				printf("Program space with no data (bss\n");
+				break;
+			case SHT_REL:
+				printf("Relocation entries, no addend\n");
+				break;
+			case SHT_SHLIB:
+				printf("Reserved\n");
+				break;
+			case SHT_DYNSYM:
+				printf("Dynamic linker symbol table\n");
+				break;
+			case SHT_INIT_ARRAY:
+				printf("Array of constructor\n");
+				break;
+			case SHT_FINI_ARRAY:
+				printf("Array of destructor\n");
+				break;
+			case SHT_PREINIT_ARRAY:
+				printf("Array of pre-constructor\n");
+				break;
+			case SHT_GROUP:
+				printf("Section group\n");
+				break;
+			case SHT_SYMTAB_SHNDX:
+				printf("Extended section indeces\n");
+				break;
+			case SHT_NUM:
+				printf("Number of defined types\n");
+				break;
+			case SHT_LOOS:
+				printf("Start OS-specific\n");
+				break;
+			case SHT_GNU_ATTRIBUTES:
+				printf("Object attributes\n");
+				break;
+			case SHT_GNU_HASH:
+				printf("GNU-style hash table\n");
+				break;
+			case SHT_GNU_LIBLIST:
+				printf("Prelink library list\n");
+				break;
+			case SHT_CHECKSUM:
+				printf("Checksum for DSO content\n");
+				break;
+			case SHT_LOSUNW:
+				printf("Sun-specific low bound\n");
+				break;
+			case SHT_GNU_verdef:
+				printf("Version definition section\n");
+				break;
+			case SHT_GNU_verneed:
+				printf("Version needs section\n");
+				break;
+			case SHT_GNU_versym:
+				printf("Version symbol table\n");
+				break;
+			case SHT_LOPROC:
+				printf("Start of processor-specific\n");
+				break;
+			case SHT_HIPROC:
+				printf("End of processor-specific\n");
+				break;
+			case SHT_LOUSER:
+				printf("Start of application-specific\n");
+				break;
+			case SHT_HIUSER:
+				printf("End of application-specific\n");
+				break;
+		}
+		
+		printf("Table attributes:\n");
+		if((sh_list[section_index].sh_flags & SHF_WRITE) == SHF_WRITE)
+		{
+			printf("\tWritable\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_ALLOC) == SHF_ALLOC)
+		{
+			printf("\tLoads to memory during execution\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_EXECINSTR) == SHF_EXECINSTR)
+		{
+			printf("\tExecutable\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_MERGE) == SHF_MERGE)
+		{
+			printf("\tMay be merged\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_STRINGS) == SHF_STRINGS)
+		{
+			printf("\tContains nul-terminated strings\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_INFO_LINK) == SHF_INFO_LINK)
+		{
+			printf("\t'sh_info' contains SHT index\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_LINK_ORDER) == SHF_LINK_ORDER)
+		{
+			printf("\tPreserve order after combining\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_OS_NONCONFORMING) == SHF_OS_NONCONFORMING)
+		{
+			printf("\tNon-standard OS specific handling required\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_GROUP) == SHF_GROUP)
+		{
+			printf("\tSection is member of a group\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_TLS) == SHF_TLS)
+		{
+			printf("\tSection holds thread-local data\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_ORDERED) == SHF_ORDERED)
+		{
+			printf("\tSpecial ordering requirement (Solaris)\n");
+		}
+		if((sh_list[section_index].sh_flags & SHF_EXCLUDE) == SHF_EXCLUDE)
+		{
+			printf("\tSection is excluded unless referenced or allocated (Solaris)\n");
+		}
 	}
 
 	/* Program header area */
