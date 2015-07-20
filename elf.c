@@ -2,11 +2,16 @@
 #include <stdlib.h>
 #include <elf.h>
 #include <inttypes.h>
-#include <elf_analyze.h>
+#include "elf_analyze.h"
 
 void analyze_32(FILE *fp);
 void analyze_64(FILE *fp);
-
+void parse_e_ident(unsigned char *e_ident);
+void parse_type(Elf64_Half e_type);
+void parse_machine(Elf64_Half e_machine);
+void parse_header_meta(Elf64_Ehdr header);
+void parse_section_headers(FILE *fp, Elf64_Ehdr header);
+void parse_program_headers(FILE *fp, Elf64_Ehdr header);
 
 void analyze_elf(FILE *fp)
 {
@@ -45,7 +50,25 @@ void analyze_64(FILE *fp)
 
 	printf("File is a 64 bit executable");
 	
-	switch(header.e_ident[EI_DATA])
+	parse_e_ident(header.e_ident);
+
+	parse_type(header.e_type);
+
+	parse_machine(header.e_type);
+
+	parse_header_meta(header);
+
+	parse_section_headers(fp, header);
+
+	parse_program_headers(fp, header);
+
+	/* Program header area */
+}
+
+
+void parse_e_ident(unsigned char *e_ident)
+{
+	switch(e_ident[EI_DATA])
 	{
 
 		case ELFDATANONE:
@@ -62,14 +85,14 @@ void analyze_64(FILE *fp)
 			break;
 	}
 
-	if(header.e_ident[EI_VERSION] == 0x01)
+	if(e_ident[EI_VERSION] == 0x01)
 	{
 		printf("ELF Version 1.\n");
 	}
 	
 	printf("Target operating system: ");
 
-	switch(header.e_ident[EI_OSABI])
+	switch(e_ident[EI_OSABI])
 	{
 		case ELFOSABI_NONE:
 			printf("UNIX System V ABI.\n");
@@ -114,10 +137,13 @@ void analyze_64(FILE *fp)
 			printf("Stanalone (embedded) application.\n");
 			break;
 	}
+}
 
 
+void parse_type(Elf64_Half e_type)
+{
 	printf("File type: ");
-	switch(header.e_type)
+	switch(e_type)
 	{
 		case ET_NONE:
 			printf("No file type\n");
@@ -139,9 +165,13 @@ void analyze_64(FILE *fp)
 		default:
 			printf("not found\n");
 	}
+}
 
+
+void parse_machine(Elf64_Half e_machine)
+{
 	printf("Machine Archetecture: ");
-	switch(header.e_type)
+	switch(e_machine)
 	{
 		case EM_NONE:
 			printf("No machine\n");
@@ -380,7 +410,11 @@ void analyze_64(FILE *fp)
 		default:
 			printf("not found\n");
 	}
+}
 
+
+void parse_header_meta(Elf64_Ehdr header)
+{
 	printf("Entry point: 0x%"PRIxFAST64"\n", (uint64_t) header.e_entry);
 
 	printf("Program header: 0x%"PRIxFAST64"\n", (uint64_t) header.e_phoff);
@@ -400,18 +434,17 @@ void analyze_64(FILE *fp)
 	printf("Flags: 0x%"PRIxLEAST32"\n", (uint32_t) header.e_flags);
 
 	printf("ELF header size: 0x%"PRIxLEAST16"\n", (uint16_t) header.e_ehsize);
+}
 
 
-	/* Section header area */
-	
+
+void parse_section_headers(FILE *fp, Elf64_Ehdr header)
+{	
 	printf("================================================================================\n");
-
-
 	
 	int num_sections = header.e_shnum, section_index;
 	Elf64_Shdr sh_list[num_sections];
 
-	printf("0x%"PRIxPTR"\n", (uintptr_t)sh_list);
 
 	fseek(fp, header.e_shoff, 0);
 	
@@ -578,9 +611,13 @@ void analyze_64(FILE *fp)
 			printf("\tSection is excluded unless referenced or allocated (Solaris)\n");
 		}
 	}
+}
 
-	/* Program header area */
 
+
+
+void parse_program_headers(FILE *fp, Elf64_Ehdr header)
+{
 	printf("================================================================================\n");
 	Elf64_Phdr program_header;
 	fseek(fp, header.e_phoff, 0);
