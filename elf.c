@@ -12,6 +12,7 @@ void parse_machine(Elf64_Half e_machine);
 void parse_header_meta(Elf64_Ehdr header);
 void parse_section_headers(FILE *fp, Elf64_Ehdr header);
 void parse_program_headers(FILE *fp, Elf64_Ehdr header);
+void parse_section(FILE *fp, Elf64_Shdr section_header, Elf64_Off offset, Elf64_Word size);
 
 void analyze_elf(FILE *fp)
 {
@@ -442,12 +443,13 @@ void parse_section_headers(FILE *fp, Elf64_Ehdr header)
 {	
 	printf("================================================================================\n");
 	
-	int num_sections = header.e_shnum, section_index;
+	Elf64_Half num_sections = header.e_shnum, section_index;
 	Elf64_Shdr sh_list[num_sections];
 
 
 	fseek(fp, header.e_shoff, 0);
 	
+	int data_sections = 0, ro_data_sections = 0;
 
 	if(!fread(&sh_list, sizeof(Elf64_Shdr), num_sections, fp))
 	{
@@ -459,9 +461,13 @@ void parse_section_headers(FILE *fp, Elf64_Ehdr header)
 	{
 
 		printf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-	
+
+		printf("Section number %d\n", section_index);
+		
+		
 		printf("0x%"PRIxLEAST64"\n", (uint64_t) sh_list[section_index].sh_name);
 	
+
 		printf("Section header type: ");
 		
 		switch(sh_list[section_index].sh_type)
@@ -470,28 +476,57 @@ void parse_section_headers(FILE *fp, Elf64_Ehdr header)
 				printf("Section header table entry unused\n");
 				break;
 			case SHT_PROGBITS:
-				printf("Program data\n");
+				switch(sh_list[section_index].sh_flags)
+				{
+					case 0x0:
+						printf(".comment/.line/.debug\n");
+						break;
+					case SHF_ALLOC:
+						ro_data_sections > 0 ? printf(".rodata%d\n", ro_data_sections) : printf(".rodata\n");
+						break;
+					case SHF_ALLOC + SHF_WRITE:
+						data_sections > 0 ? printf(".data%d\n", data_sections) : printf(".data\n");
+						break;
+					case SHF_ALLOC + SHF_EXECINSTR:
+						printf(".text\n");
+						break;
+					default:
+						printf("Program data\n");
+				}
 				break;
 			case SHT_SYMTAB:
 				printf("Symbol table\n");
+				// Do later
 				break;
 			case SHT_STRTAB:
 				printf("String table\n");
+				// Do later
 				break;
 			case SHT_RELA:
 				printf("Relocation entries with addend\n");
 				break;
 			case SHT_HASH:
-				printf("Symbol hash table\n");
+				if(sh_list[section_index].sh_flags == SHF_ALLOC)
+				{
+					printf(".hash\n");
+				}
+				else
+				{
+					printf("Hash\n");
+				}
 				break;
 			case SHT_DYNAMIC:
 				printf("Dynamic linking information\n");
+				// do later
 				break;
 			case SHT_NOTE:
-				printf("Note\n");
+				printf(".note\n");
 				break;
 			case SHT_NOBITS:
-				printf("Program space with no data (bss\n");
+				if(sh_list[section_index].sh_flags == (SHF_ALLOC + SHF_WRITE))
+				{
+					printf(".bss");
+				}
 				break;
 			case SHT_REL:
 				printf("Relocation entries, no addend\n");
@@ -561,7 +596,10 @@ void parse_section_headers(FILE *fp, Elf64_Ehdr header)
 				break;
 		}
 		
-		printf("Table attributes:\n");
+		if(sh_list[section_index].sh_flags | 0x0)
+		{
+			printf("Table attributes:\n");
+		}
 		if((sh_list[section_index].sh_flags & SHF_WRITE) == SHF_WRITE)
 		{
 			printf("\tWritable\n");
@@ -610,7 +648,17 @@ void parse_section_headers(FILE *fp, Elf64_Ehdr header)
 		{
 			printf("\tSection is excluded unless referenced or allocated (Solaris)\n");
 		}
+
+		if(sh_list[section_index].sh_addr)
+		{
+			printf("Section loads to 0x"PRIxLEAST64"\n", sh_list[section_index].sh_addr);
+		}
+
+		// Load section and analyze
+		// parse_section(fp, sh_list[section_index], sh_list[section_index].sh_offset, sh_list[section_index].sh_size);
+
 	}
+
 }
 
 
@@ -678,4 +726,10 @@ void parse_program_headers(FILE *fp, Elf64_Ehdr header)
 			printf("End of processor-specific");
 			break;
 	}
+}
+
+
+void parse_section(FILE *fp, Elf64_Shdr section_header, Elf64_Off offset, Elf64_Word size)
+{
+
 }
